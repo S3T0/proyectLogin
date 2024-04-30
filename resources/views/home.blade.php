@@ -4,6 +4,5 @@
 
 
 @section('content')
-    <h1>Bienvenido, {{ Auth::user()->username }}</h1>
-    <a href="{{ route('logout') }}">Cerrar sesión</a>
+    <h1>Bienvenido</h1>
 @endsection
