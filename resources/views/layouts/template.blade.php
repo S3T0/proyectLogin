@@ -52,7 +52,7 @@
                 <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     @auth
-                        {{ Auth::user()->username }}    
+                        {{ Auth::user()->username }}
                     @endauth                    
                 </a>
                 <ul class="dropdown-menu">
@@ -66,7 +66,6 @@
             </div>
         </div>
     </nav>
-      
     <main class="container">
         @yield('content')
     </main>

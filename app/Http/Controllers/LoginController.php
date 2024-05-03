@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+    #form login
     public function show(){
         
         if(Auth::check()){
@@ -16,6 +17,7 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+    #login
     public function login(LoginRequest $request){
         $credentials = $request->getCredentials();
 
@@ -30,13 +32,17 @@ class LoginController extends Controller
         return $this->authenticated($request, $user);
     }
 
-    public function authenticated(Request $request, $user){
-        return redirect('/home');
-    }
-
+    #logout
     public function logout(){
         Auth::logout();
 
         return redirect('/login');
     }
+
+    #redireccionar
+    public function authenticated(Request $request, $user){
+        return redirect('/home');
+    }
+
+
 }

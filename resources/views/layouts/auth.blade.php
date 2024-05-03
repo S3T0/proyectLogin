@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title')</title>
     <!-- favicon -->
-
+    @yield('favicon')
     <!-- styles -->
     <link rel="stylesheet" href="{{ url('assets/css/bootstrap.min.css') }}">
     <!-- js -->
@@ -21,7 +21,6 @@
         .form-container{
             width: 400px;
         }
-
     </style>
 </head>
 <body>
