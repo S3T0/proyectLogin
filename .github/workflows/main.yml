@@ -2,9 +2,9 @@ name: Laravel CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   laravel_tests:
@@ -40,7 +40,7 @@ jobs:
 
     - name: Create test database
       run: |
-        cp .env.testing .env
+        cp .env.example .env.testing
         php artisan migrate --env=testing --force
 
     - name: Run PHPUnit tests
@@ -64,3 +64,4 @@ jobs:
 
     - name: Run frontend tests
       run: npm run test
+
