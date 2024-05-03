@@ -2,9 +2,9 @@ name: Laravel CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   laravel_tests:
@@ -15,7 +15,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_DATABASE: laravel
+          MYSQL_DATABASE: proyectlogin
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
