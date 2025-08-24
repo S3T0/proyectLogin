@@ -1,0 +1,102 @@
+name: Laravel CI + SonarCloud + SCA + Image Security
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: laravel
+          MYSQL_USER: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para SonarCloud
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo, pdo_mysql
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Copy .env example
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run tests with coverage
+        run: php artisan test --coverage-clover=coverage.xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=tu_organizacion
+            -Dsonar.projectKey=tu_proyecto
+            -Dsonar.php.coverage.reportPaths=coverage.xml
+
+      # 🔎 Análisis SCA con Dependency-Check
+      - name: Install Dependency-Check
+        run: |
+          curl -sLO https://github.com/jeremylong/DependencyCheck/releases/download/v10.0.3/dependency-check-10.0.3-release.zip
+          unzip dependency-check-10.0.3-release.zip -d $HOME/dependency-check
+          echo "$HOME/dependency-check/dependency-check/bin" >> $GITHUB_PATH
+
+      - name: Run Dependency-Check (SCA)
+        run: |
+          dependency-check.sh --project "LaravelApp" \
+            --scan ./ \
+            --format "ALL" \
+            --out dependency-check-report
+
+      - name: Upload Dependency-Check report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: dependency-check-report
+
+      # 🔐 Security Scan de Imagen con Trivy
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@0.22.0
+        with:
+          scan-type: image
+          image-ref: laravel-app:latest
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          output: trivy-image-report.txt
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-report
+          path: trivy-image-report.txt
